@@ -18,8 +18,3 @@ export interface Course {
   teacher: string;
   studentsCount: number;
 }
-
-export interface ChangeFilterParams {
-  subject: string;
-  grade: string;
-}

@@ -33,26 +33,16 @@ const CoursesPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (currGrade === 'all' && currSubject === 'all') {
-      setFilteredCourses(courses);
-    }
-
-    if (currGrade !== 'all' && currSubject !== 'all') {
-      setFilteredCourses(
-        courses.filter(
-          (e) => e.grade === Number(currGrade) && e.subject === currSubject,
-        ),
-      );
-    }
-
-    if (currGrade !== 'all' && currSubject === 'all') {
-      setFilteredCourses(courses.filter((e) => e.grade === Number(currGrade)));
-    }
-
-    if (currGrade === 'all' && currSubject !== 'all') {
-      setFilteredCourses(courses.filter((e) => e.subject === currSubject));
-    }
-  }, [currGrade, currSubject]);
+    setFilteredCourses(
+      courses.filter((course) => {
+        const gradeMatch =
+          currGrade === 'all' || course.grade === Number(currGrade);
+        const subjectMatch =
+          currSubject === 'all' || course.subject === currSubject;
+        return gradeMatch && subjectMatch;
+      }),
+    );
+  }, [currGrade, currSubject, courses]);
 
   if (isLoading) {
     return (

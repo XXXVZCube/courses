@@ -61,7 +61,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
         <span> {teacher}</span>
         <br />
       </div>
-      <Link to={id}>Подробнее</Link>
+      <Link to={`/courses/${id}`}>Подробнее</Link>
     </div>
   );
 };

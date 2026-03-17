@@ -54,7 +54,7 @@ const CoursesFilter: React.FC<FilterProps> = ({
         <select
           name='subject'
           id='subject'
-          defaultValue={currSubject}
+          value={currSubject}
           onChange={onSubjectChange}
         >
           {subjectsArr.map((subject, index) => (
@@ -77,7 +77,7 @@ const CoursesFilter: React.FC<FilterProps> = ({
         <select
           name='grade'
           id='grade'
-          defaultValue={currGrade}
+          value={currGrade}
           onChange={onGradeChange}
         >
           {gradeArr.map((grade, index) => (

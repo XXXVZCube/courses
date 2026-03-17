@@ -8,7 +8,7 @@ export const fetchCourses = async (): Promise<Course[]> => {
     },
   });
 
-  if (!response.ok) throw new Error('err');
+  if (!response.ok) throw new Error(`Ошибка загрузки: ${response.status}`);
 
   const data: Course[] = await response.json();
   return data;
@@ -22,7 +22,7 @@ export const fetchCourseById = async (id: string): Promise<Course> => {
     },
   });
 
-  if (!response.ok) throw new Error('error');
+  if (!response.ok) throw new Error(`Ошибка загрузки: ${response.status}`);
 
   const data: Course = await response.json();
   return data;
