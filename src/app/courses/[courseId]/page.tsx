@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter, useParams } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 
-import { fetchCourseById } from '@/api/courses';
 import type { Course } from '@/types/course';
 
 import { subjectsToRus } from '@/utils/course';
@@ -13,8 +12,6 @@ import { Flex, Spin, Result, Splitter, Button } from 'antd';
 
 const CoursePage = () => {
   const params = useParams();
-
-  const router = useRouter();
 
   const [courseData, setCourseData] = useState<Course>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -25,7 +22,16 @@ const CoursePage = () => {
     const fetchCourseData = async () => {
       setLoading(true);
       try {
-        const data = await fetchCourseById(String(params.courseId));
+        const response = await fetch(
+          `http://localhost:3001/courses/${params.courseId}`,
+        );
+        if (response.status === 404) {
+          notFound();
+        }
+
+        if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
+        const data = await response.json();
+        
         setCourseData(data);
       } catch (e) {
         if (e instanceof Error) {
