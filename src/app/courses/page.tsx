@@ -25,10 +25,6 @@ const CoursesPage = () => {
       setIsLoading(true);
       try {
         const coursesData = await fetchCourses();
-        if (!coursesData) {
-          notFound();
-        }
-
         setCourses(coursesData);
         setFilteredCourses(coursesData);
       } catch (e) {
