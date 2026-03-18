@@ -7,7 +7,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { fetchCourseById } from '@/api/courses';
 import type { Course } from '@/types/course';
 
-import { subjectsToRus } from '@/components/CourseCard';
+import { subjectsToRus } from '@/app/utils/course';
 
 import { Flex, Spin, Result, Splitter, Button } from 'antd';
 
@@ -83,7 +83,7 @@ const CoursePage = () => {
             </Flex>
             <Flex align='center' gap='small'>
               <h3>Предмет:</h3>
-              <h3>{courseData?.subject}</h3>
+              {courseData && <h3>{subjectsToRus[courseData.subject]}</h3>}
             </Flex>
             <Flex align='center' gap='small'>
               <h3>Количество участников:</h3>
