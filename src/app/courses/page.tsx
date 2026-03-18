@@ -1,15 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
 
 import { fetchCourses } from '@/api/courses';
 import type { Course } from '@/types/course';
 
 import CoursesFilter from '@/components/CoursesFilter';
 import CourseCard from '@/components/CourseCard';
-import { Button, Result, Divider, Row, Spin } from 'antd';
+import { Divider, Row, Spin } from 'antd';
 
 const CoursesPage = () => {
   const [courses, setCourses] = useState<Course[]>([]);
