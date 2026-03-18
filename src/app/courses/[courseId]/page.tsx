@@ -7,7 +7,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { fetchCourseById } from '@/api/courses';
 import type { Course } from '@/types/course';
 
-import { subjectsToRus } from '@/app/utils/course';
+import { subjectsToRus } from '@/utils/course';
 
 import { Flex, Spin, Result, Splitter, Button } from 'antd';
 
