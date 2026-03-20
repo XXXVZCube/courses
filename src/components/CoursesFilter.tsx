@@ -5,6 +5,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import type { Course, Subjects } from '../types/course';
 import { Divider, Row } from 'antd';
 import CourseCard from './CourseCard';
+import { subjectsToRus } from '@/utils/course';
 
 const subjectsArr: Array<Subjects | 'all'> = [
   'all',
@@ -24,18 +25,13 @@ const gradeArr: string[] = ['all'].concat(
 const CoursesFilter: React.FC<{ courses: Course[] }> = ({ courses }) => {
   const [subject, setSubject] = useState<Subjects | 'all'>('all');
   const [grade, setGrade] = useState<string>('all');
-  const [filteredCourse, setFilteredCourse] = useState<Course[]>(courses);
 
-  useEffect(() => {
-    setFilteredCourse(
-      courses.filter((course) => {
-        const subjectMatch = subject === 'all' || course.subject === subject;
-        const gradeMatch = grade === 'all' || course.grade === Number(grade);
+  const filteredCourse = courses.filter((course) => {
+    const subjectMatch = subject === 'all' || course.subject === subject;
+    const gradeMatch = grade === 'all' || course.grade === Number(grade);
 
-        return subjectMatch && gradeMatch;
-      }),
-    );
-  }, [subject, grade, courses]);
+    return subjectMatch && gradeMatch;
+  });
 
   return (
     <>
@@ -68,7 +64,7 @@ const CoursesFilter: React.FC<{ courses: Course[] }> = ({ courses }) => {
           >
             {subjectsArr.map((subject, index) => (
               <option value={subject} key={index}>
-                {subject}
+                {subjectsToRus[subject]}
               </option>
             ))}
           </select>

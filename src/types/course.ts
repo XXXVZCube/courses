@@ -1,4 +1,5 @@
 export type Subjects =
+  | 'all'
   | 'math'
   | 'russian'
   | 'physics'

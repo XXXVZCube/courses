@@ -29,6 +29,10 @@ export default async function CoursePage({
     notFound();
   }
 
+  if (!res.ok) {
+    throw new Error(`Ошибка загрузки: ${res.status}`);
+  }
+
   const courseData: Course = await res.json();
 
   return (

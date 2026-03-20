@@ -5,6 +5,7 @@ type RusSubjects = {
 };
 
 export const subjectsToRus: RusSubjects = {
+  all: 'Все',
   math: 'Математика',
   russian: 'Русский язык',
   physics: 'Физика',
