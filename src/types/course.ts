@@ -18,3 +18,7 @@ export interface Course {
   teacher: string;
   studentsCount: number;
 }
+
+export interface id {
+  id: string;
+}

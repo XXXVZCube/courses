@@ -4,7 +4,7 @@ import type { Course } from '../types/course';
 import Link from 'next/link';
 
 import { Card, Col } from 'antd';
-const { Meta } = Card;
+import CardMeta from 'antd/es/card/CardMeta';
 
 interface CourseCardProps {
   course: Course;
@@ -21,7 +21,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
           style={{ width: 420 }}
           cover={<img draggable={false} alt={title} src={imageUrl} />}
         >
-          <Meta
+          <CardMeta
             title={title}
             description={description}
             style={{ marginBottom: 10 }}

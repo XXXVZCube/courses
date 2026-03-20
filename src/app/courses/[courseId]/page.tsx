@@ -1,114 +1,77 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { notFound, useParams } from 'next/navigation';
+import { notFound } from 'next/navigation';
 
-import type { Course } from '@/types/course';
-
+import type { Course, id } from '@/types/course';
 import { subjectsToRus } from '@/utils/course';
 
-import { Flex, Spin, Result, Splitter, Button } from 'antd';
+import { Flex, Button } from 'antd';
 
-const CoursePage = () => {
-  const params = useParams();
+export async function generateStaticParams() {
+  const res = await fetch('http://localhost:3001/courses/ids');
+  const ids: id[] = await res.json();
 
-  const [courseData, setCourseData] = useState<Course>();
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-  const [sizes, setSizes] = useState<(number | string)[]>(['30%', '50%']);
+  return ids.map((item: id) => ({
+    courseId: item.id,
+  }));
+}
 
-  useEffect(() => {
-    const fetchCourseData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(
-          `http://localhost:3001/courses/${params.courseId}`,
-        );
-        if (response.status === 404) {
-          notFound();
-        }
+export default async function CoursePage({
+  params,
+}: {
+  params: { courseId: string };
+}) {
+  const { courseId } = await params;
 
-        if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
-        const data = await response.json();
-        
-        setCourseData(data);
-      } catch (e) {
-        if (e instanceof Error) {
-          setError(e.message);
-        } else {
-          setError(e as string);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
+  const res = await fetch(`http://localhost:3001/courses/${courseId}`, {
+    next: { revalidate: 60 }, // перегенерировать раз в 60 секунд
+  });
+  if (res.status === 404) {
+    notFound();
+  }
 
-    fetchCourseData();
-  }, [params.courseId]);
-
-  if (loading) return <Spin description='Загрузка...' />;
-  if (error)
-    return (
-      <Result
-        title={error}
-        extra={
-          <Link href='/courses'>
-            <Button type='primary'>Вернуться назад</Button>
-          </Link>
-        }
-      />
-    );
+  const courseData: Course = await res.json();
 
   return (
     <Flex>
-      <Splitter onResize={setSizes} style={{ minHeight: '100vh' }}>
-        <Splitter.Panel size={sizes[0]}>
-          <img
-            src={courseData?.imageUrl}
-            alt={courseData?.title}
-            style={{ height: '100vh', objectFit: 'cover', overflow: 'hidden' }}
-          />
-        </Splitter.Panel>
-        <Splitter.Panel
-          size={sizes[1]}
-          min={700}
-          style={{
-            padding: 30,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Flex vertical>
-            <h1>{courseData?.title}</h1>
-            <p>{courseData?.description}</p>
-            <Flex align='center' gap='small'>
-              <h3>Класс:</h3>
-              <h3>{courseData?.grade}</h3>
-            </Flex>
-            <Flex align='center' gap='small'>
-              <h3>Предмет:</h3>
-              {courseData && <h3>{subjectsToRus[courseData.subject]}</h3>}
-            </Flex>
-            <Flex align='center' gap='small'>
-              <h3>Количество участников:</h3>
-              <h3>{courseData?.studentsCount}</h3>
-            </Flex>
+      <Flex style={{ width: '30vw', minHeight: '100vh' }}>
+        <img
+          src={courseData.imageUrl}
+          alt={courseData.title}
+          style={{ height: '100vh', objectFit: 'cover', overflow: 'hidden' }}
+        />
+      </Flex>
+
+      <Flex
+        vertical
+        justify='space-between'
+        style={{ padding: '10px 20px', width: '100%' }}
+      >
+        <Flex vertical gap='medium'>
+          <h1>{courseData?.title}</h1>
+          <p>{courseData?.description}</p>
+          <Flex align='center' gap='small'>
+            <h3>Класс:</h3>
+            <h3>{courseData?.grade}</h3>
           </Flex>
-          <Flex align='center' justify='space-between'>
-            <Flex gap='small'>
-              <h2>Преподаватель:</h2>
-              <h2>{courseData?.teacher}</h2>
-            </Flex>
-            <Link href='/courses'>
-              <Button type='primary'>Вернуться назад</Button>
-            </Link>
+          <Flex align='center' gap='small'>
+            <h3>Предмет:</h3>
+            {courseData && <h3>{subjectsToRus[courseData.subject]}</h3>}
           </Flex>
-        </Splitter.Panel>
-      </Splitter>
+          <Flex align='center' gap='small'>
+            <h3>Количество участников:</h3>
+            <h3>{courseData?.studentsCount}</h3>
+          </Flex>
+        </Flex>
+        <Flex align='center' justify='space-between'>
+          <Flex gap='small'>
+            <h2>Преподаватель:</h2>
+            <h2>{courseData?.teacher}</h2>
+          </Flex>
+          <Link href='/courses'>
+            <Button type='primary'>Вернуться назад</Button>
+          </Link>
+        </Flex>
+      </Flex>
     </Flex>
   );
-};
-
-export default CoursePage;
+}

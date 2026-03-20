@@ -1,12 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 
-import type { Subjects } from '../types/course';
+import type { Course, Subjects } from '../types/course';
+import { Divider, Row } from 'antd';
+import CourseCard from './CourseCard';
 
-type FilterValues = Subjects | 'all';
-
-const subjectsArr: FilterValues[] = [
+const subjectsArr: Array<Subjects | 'all'> = [
   'all',
   'math',
   'russian',
@@ -21,75 +21,91 @@ const gradeArr: string[] = ['all'].concat(
   Array.from({ length: 11 - 1 + 1 }, (_, i) => 1 + i).map(String),
 );
 
-interface FilterProps {
-  currSubject: string;
-  currGrade: string;
-  onSubjectChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  onGradeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-}
+const CoursesFilter: React.FC<{ courses: Course[] }> = ({ courses }) => {
+  const [subject, setSubject] = useState<Subjects | 'all'>('all');
+  const [grade, setGrade] = useState<string>('all');
+  const [filteredCourse, setFilteredCourse] = useState<Course[]>(courses);
 
-const CoursesFilter: React.FC<FilterProps> = ({
-  currSubject,
-  currGrade,
-  onSubjectChange,
-  onGradeChange,
-}) => {
+  useEffect(() => {
+    setFilteredCourse(
+      courses.filter((course) => {
+        const subjectMatch = subject === 'all' || course.subject === subject;
+        const gradeMatch = grade === 'all' || course.grade === Number(grade);
+
+        return subjectMatch && gradeMatch;
+      }),
+    );
+  }, [subject, grade, courses]);
+
   return (
-    <div
-      style={{
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '30px',
-      }}
-    >
+    <>
       <div
         style={{
+          width: '100%',
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          rowGap: '5px',
+          justifyContent: 'center',
+          gap: '30px',
+          marginBlock: '30px',
         }}
       >
-        <label htmlFor='subject'>Предмет</label>
-        <select
-          name='subject'
-          id='subject'
-          value={currSubject}
-          onChange={onSubjectChange}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            rowGap: '5px',
+          }}
         >
-          {subjectsArr.map((subject, index) => (
-            <option value={subject} key={index}>
-              {subject}
-            </option>
-          ))}
-        </select>
-      </div>
+          <label htmlFor='subject'>Предмет</label>
+          <select
+            name='subject'
+            id='subject'
+            value={subject}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              setSubject(e.target.value as Subjects | 'all')
+            }
+          >
+            {subjectsArr.map((subject, index) => (
+              <option value={subject} key={index}>
+                {subject}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          rowGap: '5px',
-        }}
-      >
-        <label htmlFor='grade'>Класс</label>
-        <select
-          name='grade'
-          id='grade'
-          value={currGrade}
-          onChange={onGradeChange}
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            rowGap: '5px',
+          }}
         >
-          {gradeArr.map((grade, index) => (
-            <option value={grade} key={index}>
-              {grade}
-            </option>
-          ))}
-        </select>
+          <label htmlFor='grade'>Класс</label>
+          <select
+            name='grade'
+            id='grade'
+            value={grade}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+              setGrade(e.target.value)
+            }
+          >
+            {gradeArr.map((grade, index) => (
+              <option value={grade} key={index}>
+                {grade}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-    </div>
+      <Row justify='center' gutter={[24, 24]}>
+        {filteredCourse.map((e) => (
+          <CourseCard course={e} key={e.id} />
+        ))}
+      </Row>
+      <Divider />
+    </>
   );
 };
 
