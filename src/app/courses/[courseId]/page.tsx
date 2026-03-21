@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -5,6 +6,28 @@ import type { Course, id } from '@/types/course';
 import { subjectsToRus } from '@/utils/course';
 
 import { Flex, Button } from 'antd';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { courseId: string };
+}): Promise<Metadata> {
+  const response = await fetch(
+    `http://localhost:3001/courses/${params.courseId}`,
+  );
+  if (!response.ok) return { title: 'Курс не найден - Дневник.ру' };
+
+  const courseData: Course = await response.json();
+  return {
+    title: `${courseData.title} - Дневник.ру`,
+    description: courseData.description.slice(0, 160),
+    openGraph: {
+      title: courseData.title,
+      description: courseData.description.slice(0, 160),
+      images: [{ url: courseData.imageUrl }],
+    },
+  };
+}
 
 export async function generateStaticParams() {
   const res = await fetch('http://localhost:3001/courses/ids');
@@ -35,47 +58,64 @@ export default async function CoursePage({
 
   const courseData: Course = await res.json();
 
-  return (
-    <Flex>
-      <Flex style={{ width: '30vw', minHeight: '100vh' }}>
-        <img
-          src={courseData.imageUrl}
-          alt={courseData.title}
-          style={{ height: '100vh', objectFit: 'cover', overflow: 'hidden' }}
-        />
-      </Flex>
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name: courseData.title,
+    description: courseData.description,
+    provider: {
+      '@type': 'Organization',
+      name: 'Дневник.ру',
+    },
+  };
 
-      <Flex
-        vertical
-        justify='space-between'
-        style={{ padding: '10px 20px', width: '100%' }}
-      >
-        <Flex vertical gap='medium'>
-          <h1>{courseData?.title}</h1>
-          <p>{courseData?.description}</p>
-          <Flex align='center' gap='small'>
-            <h3>Класс:</h3>
-            <h3>{courseData?.grade}</h3>
-          </Flex>
-          <Flex align='center' gap='small'>
-            <h3>Предмет:</h3>
-            {courseData && <h3>{subjectsToRus[courseData.subject]}</h3>}
-          </Flex>
-          <Flex align='center' gap='small'>
-            <h3>Количество участников:</h3>
-            <h3>{courseData?.studentsCount}</h3>
-          </Flex>
+  return (
+    <>
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <Flex>
+        <Flex style={{ width: '30vw', minHeight: '100vh' }}>
+          <img
+            src={courseData.imageUrl}
+            alt={courseData.title}
+            style={{ height: '100vh', objectFit: 'cover', overflow: 'hidden' }}
+          />
         </Flex>
-        <Flex align='center' justify='space-between'>
-          <Flex gap='small'>
-            <h2>Преподаватель:</h2>
-            <h2>{courseData?.teacher}</h2>
+
+        <Flex
+          vertical
+          justify='space-between'
+          style={{ padding: '10px 20px', width: '100%' }}
+        >
+          <Flex vertical gap='medium'>
+            <h1>{courseData?.title}</h1>
+            <p>{courseData?.description}</p>
+            <Flex align='center' gap='small'>
+              <h3>Класс:</h3>
+              <h3>{courseData?.grade}</h3>
+            </Flex>
+            <Flex align='center' gap='small'>
+              <h3>Предмет:</h3>
+              {courseData && <h3>{subjectsToRus[courseData.subject]}</h3>}
+            </Flex>
+            <Flex align='center' gap='small'>
+              <h3>Количество участников:</h3>
+              <h3>{courseData?.studentsCount}</h3>
+            </Flex>
           </Flex>
-          <Link href='/courses'>
-            <Button type='primary'>Вернуться назад</Button>
-          </Link>
+          <Flex align='center' justify='space-between'>
+            <Flex gap='small'>
+              <h2>Преподаватель:</h2>
+              <h2>{courseData?.teacher}</h2>
+            </Flex>
+            <Link href='/courses'>
+              <Button type='primary'>Вернуться назад</Button>
+            </Link>
+          </Flex>
         </Flex>
       </Flex>
-    </Flex>
+    </>
   );
 }
