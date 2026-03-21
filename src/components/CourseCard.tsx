@@ -1,7 +1,8 @@
 import React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 import type { Course } from '../types/course';
-import Link from 'next/link';
 
 import { Card, Col } from 'antd';
 import CardMeta from 'antd/es/card/CardMeta';
@@ -19,7 +20,17 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
         <Card
           hoverable
           style={{ width: 420 }}
-          cover={<img draggable={false} alt={title} src={imageUrl} />}
+          cover={
+            <div style={{ position: 'relative', height: '200px' }}>
+              <Image
+                src={imageUrl}
+                alt={title}
+                fill
+                style={{ objectFit: 'cover', borderRadius: '10px 10px 0 0' }}
+                sizes='420px'
+              />
+            </div>
+          }
         >
           <CardMeta
             title={title}

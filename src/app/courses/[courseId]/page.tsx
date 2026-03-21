@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
@@ -10,11 +11,11 @@ import { Flex, Button } from 'antd';
 export async function generateMetadata({
   params,
 }: {
-  params: { courseId: string };
+  params: Promise<{ courseId: string }>;
 }): Promise<Metadata> {
-  const response = await fetch(
-    `http://localhost:3001/courses/${params.courseId}`,
-  );
+  const { courseId } = await params;
+
+  const response = await fetch(`http://localhost:3001/courses/${courseId}`);
   if (!response.ok) return { title: 'Курс не найден - Дневник.ру' };
 
   const courseData: Course = await response.json();
@@ -41,7 +42,7 @@ export async function generateStaticParams() {
 export default async function CoursePage({
   params,
 }: {
-  params: { courseId: string };
+  params: Promise<{ courseId: string }>;
 }) {
   const { courseId } = await params;
 
@@ -76,11 +77,16 @@ export default async function CoursePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Flex>
-        <Flex style={{ width: '30vw', minHeight: '100vh' }}>
-          <img
+        <Flex
+          style={{ position: 'relative', width: '40vw', minHeight: '100vh' }}
+        >
+          <Image
             src={courseData.imageUrl}
             alt={courseData.title}
-            style={{ height: '100vh', objectFit: 'cover', overflow: 'hidden' }}
+            fill
+            style={{ objectFit: 'cover' }}
+            sizes='(max-width: 768px) 100vw, 50vw'
+            priority
           />
         </Flex>
 
